@@ -1,18 +1,23 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="logo">
+<!--      <img alt="Connect 4 AI" src="./assets/logo.png">-->
+      <h2>Connect 4 AI</h2>
+    </div>
+    <GameContainer/>
+    <footer>
+      Connect 4 AI | Project for BINUS International Analysis of Algorithm class
+    </footer>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import GameContainer from "@/components/GameContainer";
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    GameContainer
   },
 
   methods: {
@@ -39,6 +44,18 @@ export default {
 </script>
 
 <style>
+body {
+  background-color: #f0ffff;
+}
+a {
+  text-decoration: none;
+}
+.logo {
+  display: inline-block;
+}
+.logo h3 {
+  margin: 0;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

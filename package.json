@@ -10,6 +10,7 @@
   "dependencies": {
     "bootstrap-vue": "^2.20.1",
     "core-js": "^3.6.5",
+    "gsap": "^3.5.1",
     "http-server": "^0.12.3",
     "register-service-worker": "^1.7.1",
     "vue": "^2.6.11",
