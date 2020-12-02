@@ -8,10 +8,32 @@
 <script>
 import HelloWorld from './components/HelloWorld.vue'
 
+
 export default {
   name: 'App',
   components: {
     HelloWorld
+  },
+
+  methods: {
+    async update() {
+      this.prompt = false;
+      await this.$workbox.messageSW({ type: "SKIP_WAITING" });
+    }
+  },
+
+  data() {
+    return {
+      prompt: false
+    };
+  },
+
+  created() {
+    if (this.$workbox) {
+      this.$workbox.addEventListener("waiting", () => {
+        this.prompt = true;
+      });
+    }
   }
 }
 </script>
