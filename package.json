@@ -12,6 +12,7 @@
     "core-js": "^3.6.5",
     "gsap": "^3.5.1",
     "http-server": "^0.12.3",
+    "jshashtable": "^0.1.0",
     "register-service-worker": "^1.7.1",
     "vue": "^2.6.11",
     "workbox-webpack-plugin": "^6.0.0"

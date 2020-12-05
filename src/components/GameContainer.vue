@@ -26,8 +26,13 @@ import Vue from 'vue';
 
 import {min, max, key} from '@/utils';
 import {RED, BLACK, EMPTY, PLAY, OVER} from '@/constants';
-import GameBoard from "@/components/GameBoard";
-import GameScoreBoard from "@/components/GameScoreBoard";
+import GameBoard from '@/components/GameBoard';
+import GameScoreBoard from '@/components/GameScoreBoard';
+import Position from '@/AI/Position';
+import Solver from '@/AI/Solver';
+
+const WIDTH = 7;
+const HEIGHT = 6;
 
 export default {
   name: "GameContainer",
@@ -41,11 +46,15 @@ export default {
       checkers: {},
       isLocked: false,
       playerColor: RED,
-      rowCount: 6,
-      colCount: 7,
+      rowCount: HEIGHT,
+      colCount: WIDTH,
       status: PLAY,
-      instruction: 'Click one of the columns to add checker!',
+      instruction: 'Click one of the columns to play!',
       winner: undefined,
+      // AI stuff
+      isAITurn: false,
+      position: new Position(WIDTH, HEIGHT),
+      solver: new Solver(WIDTH),
     };
   },
 
@@ -84,10 +93,12 @@ export default {
       return Vue.set(this.checkers, key(row, col), {...checker, ...attrs});
     },
     drop({col, row}) {
+      this.instruction = 'Click one of the columns to play!';
       if (this.isLocked) return;
       this.isLocked = true;
       const color = this.playerColor;
       this.setChecker({row, col}, {color});
+      this.position.playCol(col);
       if (!this.isDraw) this.checkForWinFrom({row, col});
     },
     land() {
@@ -97,6 +108,17 @@ export default {
       } else {
         this.isLocked = false;
         this.toggleColor();
+      }
+      this.isAITurn = !this.isAITurn;
+      if (this.isAITurn && !this.winner) {
+        this.instruction = 'Please wait...';
+        const chosen = this.solver.solve(this.position)
+        console.log(chosen, this.solver.nodeCount);
+        // const colCheckers = Object.values(this.checkers)
+        //     .filter(c => c.col === chosen.col)
+        //     .sort((a, b) => a.row - b.row);
+        // const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
+        // this.drop({col:chosen.col, row:lastRow})
       }
     },
     getWinner(...segment) {
@@ -167,6 +189,8 @@ export default {
     displayWin(winner){
       this.winner = winner;
       this.status = OVER;
+      this.position = new Position(HEIGHT, WIDTH);
+      this.solver = new Solver(WIDTH);
       this.winner.checkers.forEach((checker) => {
         this.setChecker(checker, {isWinner: true});
       });

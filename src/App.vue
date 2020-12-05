@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="logo">
-<!--      <img alt="Connect 4 AI" src="./assets/logo.png">-->
+      <img alt="Connect 4 AI" src="img/logo.png">
       <h2>Connect 4 AI</h2>
     </div>
     <GameContainer/>
