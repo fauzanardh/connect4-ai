@@ -14,7 +14,7 @@
     <GameScoreBoard
       :moves="moves"
       :winner="winner"
-      :player-color="playerColor"
+      :current-color="currentColor"
       :status="status"
       @reset="reset"
     />
@@ -25,7 +25,7 @@
 import Vue from 'vue';
 
 import {min, max, key} from '@/utils';
-import {RED, BLACK, EMPTY, PLAY, OVER} from '@/constants';
+import {AI, YOU, EMPTY, PLAY, OVER} from '@/constants';
 import GameBoard from '@/components/GameBoard';
 import GameScoreBoard from '@/components/GameScoreBoard';
 import Position from '@/AI/Position';
@@ -45,7 +45,7 @@ export default {
     return {
       checkers: {},
       isLocked: false,
-      playerColor: RED,
+      currentColor: AI,
       rowCount: HEIGHT,
       colCount: WIDTH,
       status: PLAY,
@@ -74,7 +74,7 @@ export default {
     if (this.isAITurn) {
       const ret = this.solver.solve(this.position);
       if (ret.col === -1 && ret.val === -10000) {
-        this.resigned(this.playerColor);
+        this.resigned(this.currentColor);
       } else {
         const colCheckers = Object.values(this.checkers)
             .filter(c => c.col === ret.col)
@@ -110,10 +110,10 @@ export default {
       // }
     },
     toggleColor() {
-      if (this.playerColor === RED) {
-        this.playerColor = BLACK;
+      if (this.currentColor === AI) {
+        this.currentColor = YOU;
       } else {
-        this.playerColor = RED;
+        this.currentColor = AI;
       }
     },
     getChecker({row, col}) {
@@ -126,7 +126,7 @@ export default {
     drop({col, row}) {
       if (this.isLocked) return;
       this.isLocked = true;
-      const color = this.playerColor;
+      const color = this.currentColor;
       this.setChecker({row, col}, {color});
       this.position.playCol(col);
       if (!this.isDraw) this.checkForWinFrom({row, col});
@@ -144,7 +144,7 @@ export default {
       if (this.isAITurn && !this.winner) {
         const ret = this.solver.solve(this.position);
         if (ret.col === -1 && ret.val === -10000) {
-          this.resigned(this.playerColor);
+          this.resigned(this.currentColor);
         } else {
           const colCheckers = Object.values(this.checkers)
               .filter(c => c.col === ret.col)
@@ -228,7 +228,7 @@ export default {
       });
     },
     resigned(player){
-      this.winner = {color: player === RED ? BLACK : RED};
+      this.winner = {color: player === AI ? YOU : AI};
       this.status = OVER;
     }
   }

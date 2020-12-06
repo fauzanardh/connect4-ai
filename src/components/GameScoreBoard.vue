@@ -1,8 +1,7 @@
 <template>
   <div class="score-board">
     <div class="p1 cell">
-      <p :style="{color:redHex}">RED</p>
-<!--      <p v-if="isPlayerRed">(your turn)</p>-->
+      <p :style="{color:aiHex}">AI</p>
     </div>
     <div class="status cell">
       <p v-if="gameOver">
@@ -14,35 +13,28 @@
       </p>
     </div>
     <div class="p2 cell">
-      <p :style="{color:blackHex}">BLACK</p>
-<!--      <p v-if="isPlayerBlack">(your turn)</p>-->
+      <p :style="{color:youHex}">You</p>
     </div>
   </div>
 </template>
 
 <script>
-import {HEXES, BLACK, RED, OVER} from '@/constants';
+import {HEXES, YOU, OVER} from '@/constants';
 import {makeTitle} from "@/utils";
 
 export default {
   name: "GameScoreBoard",
-  props: ['winner', 'moves', 'playerColor', 'status'],
+  props: ['winner', 'moves', 'currentColor', 'status'],
 
   computed: {
-    redHex() {
-      return HEXES.red;
+    aiHex() {
+      return HEXES.ai;
     },
-    blackHex() {
-      return HEXES.black;
+    youHex() {
+      return HEXES.you;
     },
     winnerName() {
       return this.winner && makeTitle(this.winner.color);
-    },
-    isPlayerRed() {
-      return this.playerColor === RED;
-    },
-    isPlayerBlack() {
-      return this.playerColor === BLACK;
     },
     gameOver() {
       return this.status === OVER;
@@ -54,7 +46,11 @@ export default {
       return 'It\'s a draw!';
     },
     currentPlayer() {
-      return `${makeTitle(this.playerColor)}'s turn.`;
+      if (this.currentColor === YOU) {
+        return 'Your turn.';
+      } else {
+        return 'AI\'s turn';
+      }
     }
   },
 

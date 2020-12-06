@@ -1,16 +1,13 @@
 // Checkers
-export const RED = 'red';
-export const BLACK = 'black';
-export const GREEN = 'green';
-
+export const AI = 'ai';
+export const YOU = 'you';
 export const EMPTY = 'empty';
-export const HIDDEN = 'hidden';
+
 export const HEXES = {
-    red: '#FC7E69',
-    black: '#254689',
+    ai: '#FC7E69',
+    you: '#254689',
+    columns: '#5F9EA0',
 };
 
-// Games
-export const NOT_STARTED = 'not_started';
 export const PLAY = 'play';
 export const OVER = 'over';

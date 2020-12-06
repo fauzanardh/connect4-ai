@@ -18,7 +18,7 @@
      :key="col"
      :checkers="colCheckers(col)"
      :col="col"
-     :color="'cadetblue'"
+     :color="columnsColor"
      :cell-size="cellSize"
      :radius="radius"
      :board-height="boardHeight"
@@ -34,6 +34,7 @@
 <script>
 import {cssUrl, range} from "@/utils";
 import GameColumns from "@/components/GameColumns";
+import {HEXES} from "@/constants";
 
 export default {
   components: {
@@ -71,6 +72,9 @@ export default {
     },
     radius() {
       return this.cellSize * 0.45;
+    },
+    columnsColor() {
+      return HEXES.columns;
     }
   },
 
