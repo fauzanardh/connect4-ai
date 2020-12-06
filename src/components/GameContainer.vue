@@ -100,6 +100,8 @@ export default {
       this.setChecker({row, col}, {color});
       this.position.playCol(col);
       if (!this.isDraw) this.checkForWinFrom({row, col});
+      if (!this.isAITurn)
+        this.isAITurn = true;
     },
     land() {
       if (this.isDraw) return this.displayDraw;
@@ -109,16 +111,47 @@ export default {
         this.isLocked = false;
         this.toggleColor();
       }
-      this.isAITurn = !this.isAITurn;
       if (this.isAITurn && !this.winner) {
-        this.instruction = 'Please wait...';
-        const chosen = this.solver.solve(this.position)
-        console.log(chosen, this.solver.nodeCount);
+        this.instruction = "Please wait...";
+        console.log(this.position.possibleNonLosingMoves());
+        const column = this.solver.solve(this.position).col;
+        const colCheckers = Object.values(this.checkers)
+            .filter(c => c.col === column)
+            .sort((a, b) => a.row - b.row);
+        const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
+        this.drop({col:column, row:lastRow})
+        this.isAITurn = false;
+        // let column = 0;
+        // let score = Number.NEGATIVE_INFINITY;
+        // this.solver.columnExpOrder.forEach((item) => {
+        //   // Cloning the position class so it
+        //   // doesn't interfere with the original one
+        //   // *Hacky but it works*
+        //   const pos = Object.assign(
+        //       Object.create(Object.getPrototypeOf(this.position)),
+        //       JSON.parse(JSON.stringify(this.position, (key, value) =>
+        //           typeof value === 'bigint' ? value.toString() : value))
+        //   );
+        //   // Restoring the vars back to bigint datatype
+        //   /* eslint-disable */
+        //   pos.current_pos = BigInt(pos.current_pos);
+        //   pos.mask = BigInt(pos.mask);
+        //   pos.bottomMask = BigInt(pos.bottomMask);
+        //   pos.boardMask = BigInt(pos.boardMask);
+        //   /* eslint-enable */
+        //   pos.playCol(item);
+        //   const newScore = this.solver.solve(pos);
+        //   console.log(this.solver.nodeCount);
+        //   if (newScore > score) {
+        //     score = newScore;
+        //     column = item;
+        //   }
+        // });
         // const colCheckers = Object.values(this.checkers)
-        //     .filter(c => c.col === chosen.col)
+        //     .filter(c => c.col === column)
         //     .sort((a, b) => a.row - b.row);
         // const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
-        // this.drop({col:chosen.col, row:lastRow})
+        // this.drop({col:column, row:lastRow})
       }
     },
     getWinner(...segment) {
