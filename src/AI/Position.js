@@ -1,4 +1,4 @@
-import assert from "assert";
+// import assert from "assert";
 
 class Position {
     constructor(width, height) {
@@ -11,9 +11,11 @@ class Position {
 
         this.nbMoves = 0;
         this.mask = 0n;
-        this.bottomMask = this.bottom(width, height);
-        // eslint-disable-next-line no-undef
-        this.boardMask = this.bottomMask * ((1n << BigInt(height)) - 1n);
+        // These two variables are going to be hardcoded for now
+        this.bottomMask = 4432676798593n;
+        this.boardMask = 279258638311359n;
+        // this.bottomMask = this.row_mask(0);
+        // this.boardMask = this.bottomMask * ((1n << BigInt(height)) - 1n);
         this.current_pos = 0n;
     }
 
@@ -94,10 +96,25 @@ class Position {
 
     // Compute all possible moves that doesn't lose in one turn
     possibleNonLosingMoves() {
-        assert(!this.canWinNext());
+        // assert(!this.canWinNext());
         let possibleMask = this.possible();
         const opponentWin = this.opponent_winning_position();
-        const forcedMoves = possibleMask & opponentWin;
+        // const opponentCheckers = this.current_pos ^ this.mask;
+        let forcedMoves = possibleMask & opponentWin;
+
+        // // Check two adjacent horizontal checkers
+        // for (let i = 0; i < this.height; i++) {
+        //     // Dividing the rows into group of 4
+        //     // and calculating the score of that group
+        //     for (let j = 0; j < this.width - 5; j++) {
+        //         const rowMask = this.row_mask(i) & this.slice_row(i, j, j + 2);
+        //         const window = rowMask & this.mask;
+        //         const adjacentCheckers = ~(opponentCheckers & window) & possibleMask;
+        //         if (adjacentCheckers)
+        //             console.log(opponentCheckers, ~adjacentCheckers & this.boardMask);
+        //     }
+        // }
+
         if (forcedMoves) {
             if ((forcedMoves & (forcedMoves - 1n)) !== 0n)
                 return 0n;
@@ -196,15 +213,16 @@ class Position {
         return c;
     }
 
+    // NOT USED
     // Generate bitmask for the bottom part of each columns
-    bottom(width, height) {
-        let btm = 0n;
-        for (let x = 0; x < width; x++) {
-            // eslint-disable-next-line no-undef
-            btm |= 1n << BigInt(x * (height + 1));
-        }
-        return btm;
-    }
+    // bottom(width, height) {
+    //     let btm = 0n;
+    //     for (let x = 0; x < width; x++) {
+    //         // eslint-disable-next-line no-undef
+    //         btm |= 1n << BigInt(x * (height + 1));
+    //     }
+    //     return btm;
+    // }
 
     // Compute winning position for the current player
     winning_position() {
@@ -324,6 +342,15 @@ class Position {
     // Create a col that already been sliced
     // sliced_col_mask(col, start, end) {
     //     return this.column_mask(col) & this.slice_col(col, start, end);
+    // }
+
+    // NOT USED
+    // top_most_mask() {
+    //     let bitmask = 0n;
+    //     for (let x = 0; x < this.width; x++)
+    //         // eslint-disable-next-line no-undef
+    //         bitmask |= (1n << BigInt(this.height)) << BigInt(x * (this.height + 1));
+    //     return bitmask;
     // }
 
     // Getting the top bit for the specified column

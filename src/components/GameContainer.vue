@@ -77,6 +77,8 @@ export default {
       this.isLocked = false;
       this.status = PLAY;
       this.checkers = {};
+      this.position = new Position(WIDTH, HEIGHT);
+      this.solver = new Solver(WIDTH);
     },
     toggleColor() {
       if (this.playerColor === RED) {
@@ -113,7 +115,6 @@ export default {
       }
       if (this.isAITurn && !this.winner) {
         this.instruction = "Please wait...";
-        console.log(this.position.possibleNonLosingMoves());
         const column = this.solver.solve(this.position).col;
         const colCheckers = Object.values(this.checkers)
             .filter(c => c.col === column)

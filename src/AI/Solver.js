@@ -1,14 +1,12 @@
 // import assert from "assert";
 import Hashtable from 'jshashtable';
 import MoveSorter from "@/AI/MoveSorter";
-import TranspositionTable from "@/AI/TranspositionTable";
 
 class Solver {
     constructor(width) {
         this.nodeCount = 0;
         this.width = width;
         this.hashTable = new Hashtable();
-        this.transpositionTable = new TranspositionTable();
         this.columnExpOrder = new Array(width).fill(0);
         // Initializing the column exploration order
         for (let x = 0; x < width; x++)
@@ -36,20 +34,23 @@ class Solver {
                 if (pos.isWinningMove(x))
                     return {val: 10000, col: x};
             }
+            return {val: beta, col: -1};
         } else if (pos.opponentCanWinNext()) { // if Opponent can win
             for (let x = 0; x < pos.width; x++) {
                 if (pos.isOpponentWinningMove(x))
                     return {val: -10000, col: x};
             }
+            return {val: alpha, col: -1};
         } else if (pos.nbMoves >= pos.width * pos.height - 2) // if draw
             return {val: 0, col: -1};
 
         // Getting the non losing moves
+        // eslint-disable-next-line no-undef
         let nextPossibleMove = pos.possibleNonLosingMoves();
         // Check if there's no possible *non* losing moves
         // opponent wins next turn
         if (nextPossibleMove === 0n)
-            return {val: -Number.NEGATIVE_INFINITY, col: -1};
+            return {val: -10000, col: -1};
 
         // Getting the already evaluated value from the hashtable
         let key = pos.key();
@@ -64,6 +65,7 @@ class Solver {
             }
         }
 
+        // Setting up the move sorted based on the score
         let moves = new MoveSorter(pos.width);
         for (let i = pos.width; i--;) {
             let move = nextPossibleMove & pos.column_mask(this.columnExpOrder[i]);
@@ -101,9 +103,6 @@ class Solver {
                     value = ret.val;
                     bestColumn = nextMove.col;
                     this.hashTable.put(key, value);
-                    // if (ret.val === -10000 && ret.col !== -1) {
-                    //     return ret;
-                    // }
                 }
                 alpha = Math.max(alpha, value);
                 if (alpha >= beta) {
@@ -124,9 +123,6 @@ class Solver {
                     value = ret.val;
                     bestColumn = nextMove.col;
                     this.hashTable.put(key, value);
-                    // if (ret.val === -10000 && ret.col !== -1) {
-                    //     return ret;
-                    // }
                 }
                 beta = Math.min(beta, value);
                 if (alpha >= beta) {
@@ -242,11 +238,11 @@ class Solver {
     //     return {val:alpha, move:0};
     // }
 
-    reset() {
-        this.nodeCount = 0;
-        this.transpositionTable = new TranspositionTable();
-        this.hashTable = new Hashtable();
-    }
+    // NOT USED
+    // reset() {
+    //     this.nodeCount = 0;
+    //     this.hashTable = new Hashtable();
+    // }
 
     // solve(pos, weak = false) {
     //     this.nodeCount = 0;
