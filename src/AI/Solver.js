@@ -88,8 +88,8 @@ class Solver {
         /* eslint-disable */
         pos2.current_pos = BigInt(pos2.current_pos);
         pos2.mask = BigInt(pos2.mask);
-        pos2.bottomMask = BigInt(pos2.bottomMask);
         pos2.boardMask = BigInt(pos2.boardMask);
+        pos2.bottomMask = BigInt(pos2.bottomMask);
         /* eslint-enable */
 
         if (maximizingPlayer) {
@@ -134,6 +134,76 @@ class Solver {
             return {val: value, col: bestColumn};
         }
     }
+
+    // Negamax is the other variant of minimax algorithm
+    // this negamax also use the alpha-beta pruning method
+    // to make the search faster
+    // This is Negamax 2.0
+    // negamax(pos, alpha, beta) {
+    //     this.nodeCount++;
+    //     let nextPossibleMove = pos.possibleNonLosingMoves();
+    //     // Check if there's no possible *non* losing moves
+    //     // opponent wins next turn
+    //     if (nextPossibleMove === 0n)
+    //         return {val: -10000, col: -1};
+    //
+    //     // Check if it's a draw
+    //     if (pos.nbMoves >= pos.width * pos.height - 2) return {val: 0, move: -1n};
+    //
+    //     // Search the hash table if the value already calculated
+    //     let key = pos.key();
+    //     let val = this.hashTable.get(key);
+    //     if (val) {
+    //         if (val < beta) { // upper bound
+    //             beta = val;
+    //             if (alpha >= beta) return beta;
+    //         } else if (alpha < beta) { // lower bound
+    //             alpha = val
+    //             if (alpha >= beta) return alpha;
+    //         }
+    //     }
+    //
+    //     let moves = new MoveSorter(pos.width);
+    //     for (let i = pos.width; i--;) {
+    //         let move = nextPossibleMove & pos.column_mask(this.columnExpOrder[i]);
+    //         if (move)
+    //             moves.add(move, pos.moveScore(move), this.columnExpOrder[i]);
+    //     }
+    //     let nextMove = moves.getNext();
+    //     let value = Number.NEGATIVE_INFINITY;
+    //
+    //     let bestColumn = 0;
+    //     while (nextMove) {
+    //         // Cloning the position class so it
+    //         // doesn't interfere with the original one
+    //         // *Hacky but it works*
+    //         const pos2 = Object.assign(
+    //             Object.create(Object.getPrototypeOf(pos)),
+    //             JSON.parse(JSON.stringify(pos, (key, value) =>
+    //                 typeof value === 'bigint' ? value.toString() : value))
+    //         );
+    //         // Restoring the vars back to bigint datatype
+    //         /* eslint-disable */
+    //         pos2.current_pos = BigInt(pos2.current_pos);
+    //         pos2.mask = BigInt(pos2.mask);
+    //         pos2.bottomMask = BigInt(pos2.bottomMask);
+    //         pos2.boardMask = BigInt(pos2.boardMask);
+    //         /* eslint-enable */
+    //         pos2.play(nextMove.move);
+    //         let score = -this.negamax(pos2, -beta, -alpha).val;
+    //         if (score >= value) {
+    //             value = score;
+    //             bestColumn = nextMove.col;
+    //             this.hashTable.put(key, value);
+    //         }
+    //         alpha = Math.max(alpha, value);
+    //         if (alpha >= beta) break;
+    //
+    //         nextMove = moves.getNext();
+    //     }
+    //     this.hashTable.put(key, value);
+    //     return {val: value, col: bestColumn}
+    // }
 
     // Negamax is the other variant of minimax algorithm
     // this negamax also use the alpha-beta pruning method
@@ -269,19 +339,24 @@ class Solver {
         //
         // // iteratively narrowing the min and max
         // // range of the search window
+        // let val = 0;
+        // let col = 0;
         // while (min < max) {
         //     let med = min + (max - min) / 2;
         //     if (med <= 0 && min / 2 < med)
         //         med = min / 2;
         //     else if (med >= 0 && max / 2 > med)
         //         med = max / 2;
-        //     const r = this.negamax(pos, med, med + 1);
-        //     if (r <= med)
-        //         max = r;
-        //     else
-        //         min = r;
+        //     const ret = this.minimax(pos, med, med + 1, true);
+        //     if (ret.val <= med)
+        //         max = ret.val;
+        //     else {
+        //         min = ret.val;
+        //         val = min;
+        //         col = ret.col;
+        //     }
         // }
-        // return min;
+        // return {val: val, col: col};
     }
 
 

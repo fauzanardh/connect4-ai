@@ -35,7 +35,7 @@ const WIDTH = 7;
 const HEIGHT = 6;
 
 export default {
-  name: "GameContainer",
+  name: 'GameContainer',
   components: {
     GameBoard,
     GameScoreBoard
@@ -52,7 +52,7 @@ export default {
       instruction: 'Click one of the columns to play!',
       winner: undefined,
       // AI stuff
-      isAITurn: false,
+      isAITurn: true,
       position: new Position(WIDTH, HEIGHT),
       solver: new Solver(WIDTH),
     };
@@ -70,15 +70,44 @@ export default {
     }
   },
 
+  created() {
+    if (this.isAITurn) {
+      const ret = this.solver.solve(this.position);
+      if (ret.col === -1 && ret.val === -10000) {
+        this.resigned(this.playerColor);
+      } else {
+        const colCheckers = Object.values(this.checkers)
+            .filter(c => c.col === ret.col)
+            .sort((a, b) => a.row - b.row);
+        const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
+        this.drop({col:ret.col, row:lastRow})
+        this.isAITurn = false;
+      }
+    }
+  },
+
   methods: {
     key,
     reset() {
-      this.winner = undefined;
-      this.isLocked = false;
-      this.status = PLAY;
-      this.checkers = {};
-      this.position = new Position(WIDTH, HEIGHT);
-      this.solver = new Solver(WIDTH);
+      window.history.go(0);
+      // this.winner = undefined;
+      // this.isLocked = false;
+      // this.status = PLAY;
+      // this.checkers = {};
+      // this.isAITurn = true;
+      // this.position = new Position(WIDTH, HEIGHT);
+      // this.solver = new Solver(WIDTH);
+      // const ret = this.solver.solve(this.position);
+      // if (ret.col === -1 && ret.val === -10000) {
+      //   this.resigned(this.playerColor);
+      // } else {
+      //   const colCheckers = Object.values(this.checkers)
+      //       .filter(c => c.col === ret.col)
+      //       .sort((a, b) => a.row - b.row);
+      //   const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
+      //   this.drop({col:ret.col, row:lastRow})
+      //   this.isAITurn = false;
+      // }
     },
     toggleColor() {
       if (this.playerColor === RED) {
@@ -95,7 +124,6 @@ export default {
       return Vue.set(this.checkers, key(row, col), {...checker, ...attrs});
     },
     drop({col, row}) {
-      this.instruction = 'Click one of the columns to play!';
       if (this.isLocked) return;
       this.isLocked = true;
       const color = this.playerColor;
@@ -114,45 +142,17 @@ export default {
         this.toggleColor();
       }
       if (this.isAITurn && !this.winner) {
-        this.instruction = "Please wait...";
-        const column = this.solver.solve(this.position).col;
-        const colCheckers = Object.values(this.checkers)
-            .filter(c => c.col === column)
-            .sort((a, b) => a.row - b.row);
-        const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
-        this.drop({col:column, row:lastRow})
-        this.isAITurn = false;
-        // let column = 0;
-        // let score = Number.NEGATIVE_INFINITY;
-        // this.solver.columnExpOrder.forEach((item) => {
-        //   // Cloning the position class so it
-        //   // doesn't interfere with the original one
-        //   // *Hacky but it works*
-        //   const pos = Object.assign(
-        //       Object.create(Object.getPrototypeOf(this.position)),
-        //       JSON.parse(JSON.stringify(this.position, (key, value) =>
-        //           typeof value === 'bigint' ? value.toString() : value))
-        //   );
-        //   // Restoring the vars back to bigint datatype
-        //   /* eslint-disable */
-        //   pos.current_pos = BigInt(pos.current_pos);
-        //   pos.mask = BigInt(pos.mask);
-        //   pos.bottomMask = BigInt(pos.bottomMask);
-        //   pos.boardMask = BigInt(pos.boardMask);
-        //   /* eslint-enable */
-        //   pos.playCol(item);
-        //   const newScore = this.solver.solve(pos);
-        //   console.log(this.solver.nodeCount);
-        //   if (newScore > score) {
-        //     score = newScore;
-        //     column = item;
-        //   }
-        // });
-        // const colCheckers = Object.values(this.checkers)
-        //     .filter(c => c.col === column)
-        //     .sort((a, b) => a.row - b.row);
-        // const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
-        // this.drop({col:column, row:lastRow})
+        const ret = this.solver.solve(this.position);
+        if (ret.col === -1 && ret.val === -10000) {
+          this.resigned(this.playerColor);
+        } else {
+          const colCheckers = Object.values(this.checkers)
+              .filter(c => c.col === ret.col)
+              .sort((a, b) => a.row - b.row);
+          const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
+          this.drop({col:ret.col, row:lastRow})
+          this.isAITurn = false;
+        }
       }
     },
     getWinner(...segment) {
@@ -223,11 +223,13 @@ export default {
     displayWin(winner){
       this.winner = winner;
       this.status = OVER;
-      this.position = new Position(HEIGHT, WIDTH);
-      this.solver = new Solver(WIDTH);
       this.winner.checkers.forEach((checker) => {
         this.setChecker(checker, {isWinner: true});
       });
+    },
+    resigned(player){
+      this.winner = {color: player === RED ? BLACK : RED};
+      this.status = OVER;
     }
   }
 }

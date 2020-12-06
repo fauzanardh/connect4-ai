@@ -1,19 +1,19 @@
-// import assert from "assert";
+import assert from "assert";
 
 class Position {
     constructor(width, height) {
         this.width = width;
         this.height = height;
-
-        // NOT USED
-        // this.minScore = -(width * height) / 2 + 3;
-        // this.maxScore = (width * height + 1) / 2 - 3;
-
         this.nbMoves = 0;
         this.mask = 0n;
-        // These two variables are going to be hardcoded for now
+
+        // These variables are going to be hardcoded for now
         this.bottomMask = 4432676798593n;
         this.boardMask = 279258638311359n;
+        // this.minScore = -18;
+        // this.maxScore = 18.5;
+        // this.minScore = -(width * height) / 2 + 3;
+        // this.maxScore = (width * height + 1) / 2 - 3;
         // this.bottomMask = this.row_mask(0);
         // this.boardMask = this.bottomMask * ((1n << BigInt(height)) - 1n);
         this.current_pos = 0n;
@@ -96,31 +96,30 @@ class Position {
 
     // Compute all possible moves that doesn't lose in one turn
     possibleNonLosingMoves() {
-        // assert(!this.canWinNext());
+        assert(!this.canWinNext());
         let possibleMask = this.possible();
         const opponentWin = this.opponent_winning_position();
         // const opponentCheckers = this.current_pos ^ this.mask;
         let forcedMoves = possibleMask & opponentWin;
-
-        // // Check two adjacent horizontal checkers
-        // for (let i = 0; i < this.height; i++) {
-        //     // Dividing the rows into group of 4
-        //     // and calculating the score of that group
-        //     for (let j = 0; j < this.width - 5; j++) {
-        //         const rowMask = this.row_mask(i) & this.slice_row(i, j, j + 2);
-        //         const window = rowMask & this.mask;
-        //         const adjacentCheckers = ~(opponentCheckers & window) & possibleMask;
-        //         if (adjacentCheckers)
-        //             console.log(opponentCheckers, ~adjacentCheckers & this.boardMask);
+        // /* eslint-disable */
+        // for (let x = 0; x < this.width - 2; x++) {
+        //     // eslint-disable-next-line no-undef
+        //     if (
+        //         (((this.column_mask(x) & possibleMask) << (BigInt(this.height) + 1n)) & (this.current_pos ^ this.mask)) !== 0n &&
+        //         (((this.column_mask(x) & possibleMask) << (BigInt(this.height) + 1n)) & (2n * BigInt(this.current_pos ^ this.mask))) !== 0n
+        //     ) {
+        //         forcedMoves = possibleMask & this.column_mask(x);
         //     }
         // }
-
-        if (forcedMoves) {
-            if ((forcedMoves & (forcedMoves - 1n)) !== 0n)
-                return 0n;
-            else
-                possibleMask = forcedMoves;
-        }
+        // /* eslint-enable */
+        // if (forcedMoves) {
+        //     if ((forcedMoves & (forcedMoves - 1n)) === 0n)
+        //         return 0n;
+        //     else
+        //         possibleMask = forcedMoves;
+        // }
+        if (forcedMoves)
+            possibleMask = forcedMoves;
         return possibleMask & ~(opponentWin >> 1n)
     }
 
