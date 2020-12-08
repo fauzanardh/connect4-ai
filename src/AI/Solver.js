@@ -1,6 +1,7 @@
 // import assert from "assert";
 import Hashtable from 'jshashtable';
 import MoveSorter from "@/AI/MoveSorter";
+import assert from "assert";
 
 class Solver {
     constructor(width) {
@@ -25,120 +26,119 @@ class Solver {
     // val == 10000, col == -1 ==> playerWon
     // val == -10000, col == -1 ==> opponentWon
     // col == - 2 ==> Resigned
-    minimax(pos, alpha, beta, maximizingPlayer) {
-        this.nodeCount++;
-        if (this.nodeCount % 100000 === 0) console.log(this.nodeCount);
-
-        if (pos.canWinNext()) { // if Player can win
-            for (let x = 0; x < pos.width; x++) {
-                if (pos.isWinningMove(x))
-                    return {val: 10000, col: x};
-            }
-            return {val: beta, col: -1};
-        } else if (pos.opponentCanWinNext()) { // if Opponent can win
-            for (let x = 0; x < pos.width; x++) {
-                if (pos.isOpponentWinningMove(x))
-                    return {val: -10000, col: x};
-            }
-            return {val: alpha, col: -1};
-        } else if (pos.nbMoves >= pos.width * pos.height - 2) // if draw
-            return {val: 0, col: -1};
-
-        // Getting the non losing moves
-        // eslint-disable-next-line no-undef
-        let nextPossibleMove = pos.possibleNonLosingMoves();
-        // Check if there's no possible *non* losing moves
-        // opponent wins next turn
-        if (nextPossibleMove === 0n)
-            return {val: -10000, col: -1};
-
-        // Getting the already evaluated value from the hashtable
-        let key = pos.key();
-        let val = this.hashTable.get(key);
-        if (val) {
-            if (val < beta) { // upper bound
-                beta = val;
-                if (alpha >= beta) return beta;
-            } else if (alpha < beta) { // lower bound
-                alpha = val
-                if (alpha >= beta) return alpha;
-            }
-        }
-
-        // Setting up the move sorted based on the score
-        let moves = new MoveSorter(pos.width);
-        for (let i = pos.width; i--;) {
-            let move = nextPossibleMove & pos.column_mask(this.columnExpOrder[i]);
-            if (move)
-                moves.add(move, pos.moveScore(move), this.columnExpOrder[i]);
-        }
-
-        let bestColumn = 0;
-        let nextMove = moves.getNext();
-
-        // Cloning the position class so it
-        // doesn't interfere with the original one
-        // *Hacky but it works*
-        const pos2 = Object.assign(
-            Object.create(Object.getPrototypeOf(pos)),
-            JSON.parse(JSON.stringify(pos, (key, value) =>
-                typeof value === 'bigint' ? value.toString() : value))
-        );
-        // Restoring the vars back to bigint datatype
-        /* eslint-disable */
-        pos2.current_pos = BigInt(pos2.current_pos);
-        pos2.mask = BigInt(pos2.mask);
-        pos2.boardMask = BigInt(pos2.boardMask);
-        pos2.bottomMask = BigInt(pos2.bottomMask);
-        /* eslint-enable */
-
-        if (maximizingPlayer) {
-            let value = Number.NEGATIVE_INFINITY;
-            // Will loop until there's no move left in the move sorter
-            while (nextMove) {
-                // Play the move
-                pos2.play(nextMove.move);
-                let ret = this.minimax(pos2, alpha, beta, false);
-                if (ret.val > value) {
-                    value = ret.val;
-                    bestColumn = nextMove.col;
-                    this.hashTable.put(key, value);
-                }
-                alpha = Math.max(alpha, value);
-                if (alpha >= beta) {
-                    this.hashTable.put(key, alpha);
-                    break;
-                }
-                nextMove = moves.getNext();
-            }
-            return {val: value, col: bestColumn};
-        } else {
-            let value = Number.POSITIVE_INFINITY;
-            // Will loop until there's no move left in the move sorter
-            while (nextMove) {
-                // Play the move
-                pos2.play(nextMove.move);
-                let ret = this.minimax(pos2, alpha, beta, true);
-                if (ret.val < value) {
-                    value = ret.val;
-                    bestColumn = nextMove.col;
-                    this.hashTable.put(key, value);
-                }
-                beta = Math.min(beta, value);
-                if (alpha >= beta) {
-                    this.hashTable.put(key, beta);
-                    break;
-                }
-                nextMove = moves.getNext();
-            }
-            return {val: value, col: bestColumn};
-        }
-    }
+    // minimax(pos, alpha, beta, maximizingPlayer) {
+    //     this.nodeCount++;
+    //     if (this.nodeCount % 100000 === 0) console.log(this.nodeCount);
+    //
+    //     if (pos.canWinNext()) { // if Player can win
+    //         for (let x = 0; x < pos.width; x++) {
+    //             if (pos.isWinningMove(x))
+    //                 return {val: 10000, col: x};
+    //         }
+    //         return {val: beta, col: -1};
+    //     } else if (pos.opponentCanWinNext()) { // if Opponent can win
+    //         for (let x = 0; x < pos.width; x++) {
+    //             if (pos.isOpponentWinningMove(x))
+    //                 return {val: -10000, col: x};
+    //         }
+    //         return {val: alpha, col: -1};
+    //     } else if (pos.nbMoves >= pos.width * pos.height - 2) // if draw
+    //         return {val: 0, col: -1};
+    //
+    //     // Getting the non losing moves
+    //     // eslint-disable-next-line no-undef
+    //     let nextPossibleMove = pos.possibleNonLosingMoves();
+    //     // Check if there's no possible *non* losing moves
+    //     // opponent wins next turn
+    //     if (nextPossibleMove === 0n)
+    //         return {val: -10000, col: -1};
+    //
+    //     // Getting the already evaluated value from the hashtable
+    //     let key = pos.key();
+    //     let val = this.hashTable.get(key);
+    //     if (val) {
+    //         if (val < beta) { // upper bound
+    //             beta = val;
+    //             if (alpha >= beta) return beta;
+    //         } else if (alpha < beta) { // lower bound
+    //             alpha = val
+    //             if (alpha >= beta) return alpha;
+    //         }
+    //     }
+    //
+    //     // Setting up the move sorted based on the score
+    //     let moves = new MoveSorter(pos.width);
+    //     for (let i = pos.width; i--;) {
+    //         let move = nextPossibleMove & pos.column_mask(this.columnExpOrder[i]);
+    //         if (move)
+    //             moves.add(move, pos.moveScore(move), this.columnExpOrder[i]);
+    //     }
+    //
+    //     let bestColumn = 0;
+    //     let nextMove = moves.getNext();
+    //
+    //     // Cloning the position class so it
+    //     // doesn't interfere with the original one
+    //     // *Hacky but it works*
+    //     const pos2 = Object.assign(
+    //         Object.create(Object.getPrototypeOf(pos)),
+    //         JSON.parse(JSON.stringify(pos, (key, value) =>
+    //             typeof value === 'bigint' ? value.toString() : value))
+    //     );
+    //     // Restoring the vars back to bigint datatype
+    //     /* eslint-disable */
+    //     pos2.current_pos = BigInt(pos2.current_pos);
+    //     pos2.mask = BigInt(pos2.mask);
+    //     pos2.boardMask = BigInt(pos2.boardMask);
+    //     pos2.bottomMask = BigInt(pos2.bottomMask);
+    //     /* eslint-enable */
+    //
+    //     if (maximizingPlayer) {
+    //         let value = Number.NEGATIVE_INFINITY;
+    //         // Will loop until there's no move left in the move sorter
+    //         while (nextMove) {
+    //             // Play the move
+    //             pos2.play(nextMove.move);
+    //             let ret = this.minimax(pos2, alpha, beta, false);
+    //             if (ret.val > value) {
+    //                 value = ret.val;
+    //                 bestColumn = nextMove.col;
+    //                 this.hashTable.put(key, value);
+    //             }
+    //             alpha = Math.max(alpha, value);
+    //             if (alpha >= beta) {
+    //                 this.hashTable.put(key, alpha);
+    //                 break;
+    //             }
+    //             nextMove = moves.getNext();
+    //         }
+    //         return {val: value, col: bestColumn};
+    //     } else {
+    //         let value = Number.POSITIVE_INFINITY;
+    //         // Will loop until there's no move left in the move sorter
+    //         while (nextMove) {
+    //             // Play the move
+    //             pos2.play(nextMove.move);
+    //             let ret = this.minimax(pos2, alpha, beta, true);
+    //             if (ret.val < value) {
+    //                 value = ret.val;
+    //                 bestColumn = nextMove.col;
+    //                 this.hashTable.put(key, value);
+    //             }
+    //             beta = Math.min(beta, value);
+    //             if (alpha >= beta) {
+    //                 this.hashTable.put(key, beta);
+    //                 break;
+    //             }
+    //             nextMove = moves.getNext();
+    //         }
+    //         return {val: value, col: bestColumn};
+    //     }
+    // }
 
     // Negamax is the other variant of minimax algorithm
     // this negamax also use the alpha-beta pruning method
     // to make the search faster
-    // This is Negamax 2.0
     // negamax(pos, alpha, beta) {
     //     this.nodeCount++;
     //     let nextPossibleMove = pos.possibleNonLosingMoves();
@@ -208,105 +208,126 @@ class Solver {
     // Negamax is the other variant of minimax algorithm
     // this negamax also use the alpha-beta pruning method
     // to make the search faster
-    // negamax(pos, alpha, beta) {
-    //     assert(alpha < beta);
-    //     assert(!pos.canWinNext());
-    //     this.nodeCount++;
-    //     if (this.nodeCount % 100000 === 0) console.log(this.nodeCount);
-    //
-    //     let nextPossibleMove = pos.possibleNonLosingMoves();
-    //     // Check if there's no possible *non* losing moves
-    //     if (nextPossibleMove === 0n)
-    //         return {val: -(pos.width * pos.height - pos.nbMoves) / 2, move: -1n};
-    //
-    //     // Check if it's a draw
-    //     if (pos.nbMoves >= pos.width * pos.height - 2) return {val: 0, move: -1n};
-    //
-    //     // Lower bound of the search
-    //     let min = -(pos.width * pos.height - 2 - pos.nbMoves) / 2;
-    //     if (alpha < min) {
-    //         alpha = min;
-    //         // Make the search windows smaller
-    //         if (alpha >= beta) return {val: alpha, move: -1n};
-    //     }
-    //
-    //     // Upper bound of the search
-    //     let max = (pos.width * pos.height - 1 - pos.nbMoves) / 2;
-    //     if (beta > max) {
-    //         beta = max;
-    //         // Make the search windows smaller
-    //         if (alpha >= beta) return {val: beta, move: -1n};
-    //     }
-    //
-    //     // Search the hash table if the value already calculated
-    //     let key = pos.key();
-    //     let val = this.transpositionTable.get(key);
-    //     if (val) {
-    //         console.log(val, pos, alpha, beta);
-    //         // Check if the pos have a lower bound
-    //         if (val > pos.maxScore - pos.minScore + 1) {
-    //             min = val + 2 * pos.minScore - pos.maxScore - 2;
-    //             if (alpha < min) {
-    //                 alpha = min;
-    //                 // console.log(key, val, alpha, beta);
-    //                 if (alpha >= beta) return {val: alpha, move: -1n};
-    //             }
-    //         } else { // The pos have an upper bound
-    //             max = val + pos.minScore - 1;
-    //             if (beta > max) {
-    //                 beta = max;
-    //                 // console.log(key, val, alpha, beta);
-    //                 if (alpha >= beta) return {val: beta, move: -1n};
-    //             }
-    //         }
-    //     }
-    //
-    //     let moves = new MoveSorter(pos.width);
-    //     for (let i = pos.width; i--;) {
-    //         let move = nextPossibleMove & pos.column_mask(this.columnExpOrder[i]);
-    //         if (move)
-    //             moves.add(move, pos.moveScore(move), this.columnExpOrder[i]);
-    //     }
-    //
-    //     // Computing the scores of all possible moves
-    //     // and keep the best one
-    //     let nextMove = moves.getNext();
-    //     while (nextMove) {
-    //         // Cloning the position class so it
-    //         // doesn't interfere with the original one
-    //         // *Hacky but it works*
-    //         const pos2 = Object.assign(
-    //             Object.create(Object.getPrototypeOf(pos)),
-    //             JSON.parse(JSON.stringify(pos, (key, value) =>
-    //                 typeof value === 'bigint' ? value.toString() : value))
-    //         );
-    //         // Restoring the vars back to bigint datatype
-    //         /* eslint-disable */
-    //         pos2.current_pos = BigInt(pos2.current_pos);
-    //         pos2.mask = BigInt(pos2.mask);
-    //         pos2.bottomMask = BigInt(pos2.bottomMask);
-    //         pos2.boardMask = BigInt(pos2.boardMask);
-    //         /* eslint-enable */
-    //         pos2.play(nextMove.move);
-    //         // console.log(pos2.current_pos ^ pos2.mask);
-    //
-    //         // calculate the score recursively
-    //         const score = -this.negamax(pos2, -beta, -alpha);
-    //         // Pruning the search if we find better move
-    //         if (score >= beta) {
-    //             this.transpositionTable.put(key, score + pos.maxScore - 2 * pos.minScore + 2);
-    //             return {val: score, move: nextMove.move};
-    //         }
-    //         // Reducing the search windows to the new [alpha-beta]
-    //         // eslint-disable-next-line no-unreachable
-    //         if (score > alpha) alpha = score;
-    //         // continues to the next move
-    //         nextMove = moves.getNext();
-    //     }
-    //     // Saving the upper bound for the position to the hashtable
-    //     this.transpositionTable.put(key, alpha - pos.minScore + 1);
-    //     return {val:alpha, move:0};
-    // }
+    negamax(pos, alpha, beta) {
+        assert(alpha < beta);
+        this.nodeCount++;
+
+        if (pos.canWinNext()) { // if Player can win
+            for (let x = 0; x < pos.width; x++) {
+                if (pos.isWinningMove(x))
+                    return {val: pos.maxScore, col: x};
+            }
+            return {val: beta, col: -1};
+        } else if (pos.opponentCanWinNext()) { // if Opponent can win
+            for (let x = 0; x < pos.width; x++) {
+                if (pos.isOpponentWinningMove(x))
+                    return {val: pos.minScore, col: x};
+            }
+            return {val: alpha, col: -1};
+        }
+
+
+        let nextPossibleMove = pos.possibleNonLosingMoves();
+        // Check if there's no possible *non* losing moves
+        if (nextPossibleMove === 0n)
+            return {val: -(pos.width * pos.height - pos.nbMoves) / 2, col: -1n};
+
+        // Check if it's a draw
+        if (pos.nbMoves >= pos.width * pos.height - 2) return {val: 0, col: -1n};
+
+        // Lower bound of the search
+        let min = -(pos.width * pos.height - 2 - pos.nbMoves) / 2;
+        if (alpha < min) {
+            alpha = min;
+            // Make the search windows smaller
+            if (alpha >= beta) return {val: alpha, col: -1n};
+        }
+
+        // Upper bound of the search
+        let max = (pos.width * pos.height - 1 - pos.nbMoves) / 2;
+        if (beta > max) {
+            beta = max;
+            // Make the search windows smaller
+            if (alpha >= beta) return {val: beta, col: -1n};
+        }
+
+        // Search the hash table if the value already calculated
+        let key = pos.key();
+        let val = this.hashTable.get(key);
+        if (val) {
+            // Check if the pos have a lower bound
+            if (val > pos.maxScore - pos.minScore + 1) {
+                min = val + 2 * pos.minScore - pos.maxScore - 2;
+                if (alpha < min) {
+                    alpha = min;
+                    if (alpha >= beta) return {val: alpha, col: -1n};
+                }
+            } else { // The pos have an upper bound
+                max = val + pos.minScore - 1;
+                if (beta > max) {
+                    beta = max;
+                    if (alpha >= beta) return {val: beta, col: -1n};
+                }
+            }
+        }
+
+        let moves = new MoveSorter(pos.width);
+        for (let i = pos.width; i--;) {
+            let move = nextPossibleMove & pos.column_mask(this.columnExpOrder[i]);
+            if (move)
+                moves.add(move, pos.moveScore(move), this.columnExpOrder[i]);
+        }
+
+        // Computing the scores of all possible moves
+        // and keep the best one
+        let nextMove = moves.getNext();
+        let bestMoveCol = 0;
+        let value = alpha;
+        while (nextMove) {
+            // Cloning the position class so it
+            // doesn't interfere with the original one
+            // *Hacky but it works*
+            const pos2 = Object.assign(
+                Object.create(Object.getPrototypeOf(pos)),
+                JSON.parse(JSON.stringify(pos, (key, value) =>
+                    typeof value === 'bigint' ? value.toString() : value))
+            );
+            // Restoring the vars back to bigint datatype
+            /* eslint-disable */
+            pos2.current_pos = BigInt(pos2.current_pos);
+            pos2.mask = BigInt(pos2.mask);
+            pos2.bottomMask = BigInt(pos2.bottomMask);
+            pos2.boardMask = BigInt(pos2.boardMask);
+            assert(pos2.current_pos === pos.current_pos);
+            assert(pos2.mask === pos.mask);
+            assert(pos2.bottomMask === pos.bottomMask);
+            assert(pos2.boardMask === pos.boardMask);
+            /* eslint-enable */
+            pos2.play(nextMove.move);
+            // console.log(pos2.current_pos ^ pos2.mask);
+
+            // calculate the score recursively
+            let newValue = -(this.negamax(pos2, -beta, -alpha).val);
+            // Pruning the search if we find better move
+            if (newValue >= value) {
+                value = newValue;
+                bestMoveCol = nextMove.col;
+                this.hashTable.put(key, value + pos.maxScore - 2 * pos.minScore + 2);
+            }
+            // Reducing the search windows to the new [alpha-beta]
+            if (value > alpha) {
+                alpha = value;
+                this.hashTable.put(key, alpha - pos.minScore + 1);
+            }
+
+            if (alpha >= beta) break;
+
+            // continues to the next move
+            nextMove = moves.getNext();
+        }
+        // Saving the upper bound for the position to the hashtable
+        return {val: value, col: bestMoveCol};
+    }
 
     // NOT USED
     // reset() {
@@ -325,9 +346,9 @@ class Solver {
     solve(pos, weak = false) {
         this.nodeCount = 0;
         if (weak)
-            return this.minimax(pos, -1, 1, true);
+            return this.negamax(pos, -1, 1);
         else
-            return this.minimax(pos, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true);
+            return this.negamax(pos, -(pos.width * pos.height - 2 - pos.nbMoves) / 2, (pos.width * pos.height - 1 - pos.nbMoves) / 2);
         // if (pos.canWinNext())
         //     return (pos.width * pos.height + 1 - pos.nbMoves) / 2;
         // let min = -pos.width * pos.height / 2;

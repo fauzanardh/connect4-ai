@@ -8,14 +8,15 @@ class Position {
         this.mask = 0n;
 
         // These variables are going to be hardcoded for now
-        this.bottomMask = 4432676798593n;
-        this.boardMask = 279258638311359n;
+        // this.bottomMask = 4432676798593n;
+        // this.boardMask = 279258638311359n;
         // this.minScore = -18;
         // this.maxScore = 18.5;
-        // this.minScore = -(width * height) / 2 + 3;
-        // this.maxScore = (width * height + 1) / 2 - 3;
-        // this.bottomMask = this.row_mask(0);
-        // this.boardMask = this.bottomMask * ((1n << BigInt(height)) - 1n);
+        this.minScore = -(width * height) / 2 + 3;
+        this.maxScore = (width * height + 1) / 2 - 3;
+        this.bottomMask = this.row_mask(0);
+        // eslint-disable-next-line no-undef
+        this.boardMask = this.bottomMask * ((1n << BigInt(height)) - 1n);
         this.current_pos = 0n;
     }
 
@@ -118,9 +119,13 @@ class Position {
         //     else
         //         possibleMask = forcedMoves;
         // }
-        if (forcedMoves)
-            possibleMask = forcedMoves;
-        return possibleMask & ~(opponentWin >> 1n)
+        if (forcedMoves) {
+            if (forcedMoves & (forcedMoves - 1n))
+                return 0n;
+            else
+                possibleMask = forcedMoves;
+        }
+        return possibleMask & ~(opponentWin >> 1n);
     }
 
     // NOT USED
@@ -374,21 +379,21 @@ class Position {
 
     // NOT USED
     // Getting the columns' bit for the specified row
-    // row_mask(row) {
-    //     if (typeof row === 'bigint') {
-    //         let bitmask = 0n;
-    //         for (let x = 0; x < this.width; x++)
-    //             // eslint-disable-next-line no-undef
-    //             bitmask |= 1n << (BigInt(x * (this.height + 1)) + row);
-    //         return bitmask;
-    //     } else {
-    //         let bitmask = 0n;
-    //         for (let x = 0; x < this.width; x++)
-    //             // eslint-disable-next-line no-undef
-    //             bitmask |= 1n << BigInt(x * (this.height + 1) + row);
-    //         return bitmask;
-    //     }
-    // }
+    row_mask(row) {
+        if (typeof row === 'bigint') {
+            let bitmask = 0n;
+            for (let x = 0; x < this.width; x++)
+                // eslint-disable-next-line no-undef
+                bitmask |= 1n << (BigInt(x * (this.height + 1)) + row);
+            return bitmask;
+        } else {
+            let bitmask = 0n;
+            for (let x = 0; x < this.width; x++)
+                // eslint-disable-next-line no-undef
+                bitmask |= 1n << BigInt(x * (this.height + 1) + row);
+            return bitmask;
+        }
+    }
 
     // Getting the entire column's bit for the specified column
     column_mask(col) {

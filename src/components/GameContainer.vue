@@ -73,16 +73,13 @@ export default {
   created() {
     if (this.isAITurn) {
       const ret = this.solver.solve(this.position);
-      if (ret.col === -1 && ret.val === -10000) {
-        this.resigned(this.currentColor);
-      } else {
-        const colCheckers = Object.values(this.checkers)
-            .filter(c => c.col === ret.col)
-            .sort((a, b) => a.row - b.row);
-        const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
-        this.drop({col:ret.col, row:lastRow})
-        this.isAITurn = false;
-      }
+      const column = ret.col;
+      const colCheckers = Object.values(this.checkers)
+          .filter(c => c.col === ret.col)
+          .sort((a, b) => a.row - b.row);
+      const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
+      this.drop({col: column, row: lastRow})
+      this.isAITurn = false;
     }
   },
 
