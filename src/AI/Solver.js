@@ -1,7 +1,6 @@
-// import assert from "assert";
+import assert from "assert";
 import Hashtable from 'jshashtable';
 import MoveSorter from "@/AI/MoveSorter";
-import assert from "assert";
 
 class Solver {
     constructor(width) {
@@ -76,22 +75,8 @@ class Solver {
     //
     //     let bestColumn = 0;
     //     let nextMove = moves.getNext();
-    //
-    //     // Cloning the position class so it
-    //     // doesn't interfere with the original one
-    //     // *Hacky but it works*
-    //     const pos2 = Object.assign(
-    //         Object.create(Object.getPrototypeOf(pos)),
-    //         JSON.parse(JSON.stringify(pos, (key, value) =>
-    //             typeof value === 'bigint' ? value.toString() : value))
-    //     );
-    //     // Restoring the vars back to bigint datatype
-    //     /* eslint-disable */
-    //     pos2.current_pos = BigInt(pos2.current_pos);
-    //     pos2.mask = BigInt(pos2.mask);
-    //     pos2.boardMask = BigInt(pos2.boardMask);
-    //     pos2.bottomMask = BigInt(pos2.bottomMask);
-    //     /* eslint-enable */
+
+    //     const pos2 = pos.clone();
     //
     //     if (maximizingPlayer) {
     //         let value = Number.NEGATIVE_INFINITY;
@@ -174,21 +159,7 @@ class Solver {
     //
     //     let bestColumn = 0;
     //     while (nextMove) {
-    //         // Cloning the position class so it
-    //         // doesn't interfere with the original one
-    //         // *Hacky but it works*
-    //         const pos2 = Object.assign(
-    //             Object.create(Object.getPrototypeOf(pos)),
-    //             JSON.parse(JSON.stringify(pos, (key, value) =>
-    //                 typeof value === 'bigint' ? value.toString() : value))
-    //         );
-    //         // Restoring the vars back to bigint datatype
-    //         /* eslint-disable */
-    //         pos2.current_pos = BigInt(pos2.current_pos);
-    //         pos2.mask = BigInt(pos2.mask);
-    //         pos2.bottomMask = BigInt(pos2.bottomMask);
-    //         pos2.boardMask = BigInt(pos2.boardMask);
-    //         /* eslint-enable */
+    //         const pos2 = pos.clone();
     //         pos2.play(nextMove.move);
     //         let score = -this.negamax(pos2, -beta, -alpha).val;
     //         if (score >= value) {
@@ -230,17 +201,17 @@ class Solver {
         let nextPossibleMove = pos.possibleNonLosingMoves();
         // Check if there's no possible *non* losing moves
         if (nextPossibleMove === 0n)
-            return {val: -(pos.width * pos.height - pos.nbMoves) / 2, col: -1n};
+            return {val: -(pos.width * pos.height - pos.nbMoves) / 2, col: -1};
 
         // Check if it's a draw
-        if (pos.nbMoves >= pos.width * pos.height - 2) return {val: 0, col: -1n};
+        if (pos.nbMoves >= pos.width * pos.height - 2) return {val: 0, col: -1};
 
         // Lower bound of the search
         let min = -(pos.width * pos.height - 2 - pos.nbMoves) / 2;
         if (alpha < min) {
             alpha = min;
             // Make the search windows smaller
-            if (alpha >= beta) return {val: alpha, col: -1n};
+            if (alpha >= beta) return {val: alpha, col: -1};
         }
 
         // Upper bound of the search
@@ -248,7 +219,7 @@ class Solver {
         if (beta > max) {
             beta = max;
             // Make the search windows smaller
-            if (alpha >= beta) return {val: beta, col: -1n};
+            if (alpha >= beta) return {val: beta, col: -1};
         }
 
         // Search the hash table if the value already calculated
@@ -260,13 +231,13 @@ class Solver {
                 min = val + 2 * pos.minScore - pos.maxScore - 2;
                 if (alpha < min) {
                     alpha = min;
-                    if (alpha >= beta) return {val: alpha, col: -1n};
+                    if (alpha >= beta) return {val: alpha, col: -1};
                 }
             } else { // The pos have an upper bound
                 max = val + pos.minScore - 1;
                 if (beta > max) {
                     beta = max;
-                    if (alpha >= beta) return {val: beta, col: -1n};
+                    if (alpha >= beta) return {val: beta, col: -1};
                 }
             }
         }
@@ -284,30 +255,13 @@ class Solver {
         let bestMoveCol = 0;
         let value = alpha;
         while (nextMove) {
-            // Cloning the position class so it
-            // doesn't interfere with the original one
-            // *Hacky but it works*
-            const pos2 = Object.assign(
-                Object.create(Object.getPrototypeOf(pos)),
-                JSON.parse(JSON.stringify(pos, (key, value) =>
-                    typeof value === 'bigint' ? value.toString() : value))
-            );
-            // Restoring the vars back to bigint datatype
-            /* eslint-disable */
-            pos2.current_pos = BigInt(pos2.current_pos);
-            pos2.mask = BigInt(pos2.mask);
-            pos2.bottomMask = BigInt(pos2.bottomMask);
-            pos2.boardMask = BigInt(pos2.boardMask);
-            assert(pos2.current_pos === pos.current_pos);
-            assert(pos2.mask === pos.mask);
-            assert(pos2.bottomMask === pos.bottomMask);
-            assert(pos2.boardMask === pos.boardMask);
-            /* eslint-enable */
+            const pos2 = pos.clone();
             pos2.play(nextMove.move);
-            // console.log(pos2.current_pos ^ pos2.mask);
 
             // calculate the score recursively
-            let newValue = -(this.negamax(pos2, -beta, -alpha).val);
+            let ret = this.negamax(pos2, -beta, -alpha);
+            const newValue = -(ret.val);
+            if (newValue === -10000) return {val: newValue, col: ret.val};
             // Pruning the search if we find better move
             if (newValue >= value) {
                 value = newValue;

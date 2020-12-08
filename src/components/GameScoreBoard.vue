@@ -9,7 +9,7 @@
         <a href="#app" @click="reset">Play Again</a>
       </p>
       <p v-else>
-        {{ currentPlayer }}
+        {{ currentPlayerTurnString }}
       </p>
     </div>
     <div class="p2 cell">
@@ -24,7 +24,7 @@ import {makeTitle} from "@/utils";
 
 export default {
   name: "GameScoreBoard",
-  props: ['winner', 'moves', 'currentColor', 'status'],
+  props: ['winner', 'moves', 'currentPlayer', 'status'],
 
   computed: {
     aiHex() {
@@ -45,8 +45,8 @@ export default {
       }
       return 'It\'s a draw!';
     },
-    currentPlayer() {
-      if (this.currentColor === YOU) {
+    currentPlayerTurnString() {
+      if (this.currentPlayer === YOU) {
         return 'Your turn.';
       } else {
         return 'AI\'s turn';

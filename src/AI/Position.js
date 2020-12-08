@@ -28,6 +28,29 @@ class Position {
         return (this.mask & this.top_mask_col(col)) === 0n;
     }
 
+    clone() {
+        // Cloning the position class so it
+        // doesn't interfere with the original one
+        // *Hacky but it works*
+        const pos2 = Object.assign(
+            Object.create(Object.getPrototypeOf(this)),
+            JSON.parse(JSON.stringify(this, (key, value) =>
+                typeof value === 'bigint' ? value.toString() : value))
+        );
+        // Restoring the vars back to bigint datatype
+        /* eslint-disable */
+        pos2.current_pos = BigInt(pos2.current_pos);
+        pos2.mask = BigInt(pos2.mask);
+        pos2.bottomMask = BigInt(pos2.bottomMask);
+        pos2.boardMask = BigInt(pos2.boardMask);
+        assert(pos2.current_pos === this.current_pos);
+        assert(pos2.mask === this.mask);
+        assert(pos2.bottomMask === this.bottomMask);
+        assert(pos2.boardMask === this.boardMask);
+        /* eslint-enable */
+        return pos2;
+    }
+
     // Simulating 'playing' the checkers
     // in the solver with the desired move bit
     play(move) {

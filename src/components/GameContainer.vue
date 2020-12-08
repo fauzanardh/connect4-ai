@@ -4,19 +4,19 @@
       {{ instruction }}
     </p>
     <GameBoard
-      :checkers="checkers"
-      :row-count="rowCount"
-      :col-count="colCount"
-      :status="status"
-      @drop="drop"
-      @land="land"
+        :checkers="checkers"
+        :row-count="rowCount"
+        :col-count="colCount"
+        :status="status"
+        @drop="drop"
+        @land="land"
     />
     <GameScoreBoard
-      :moves="moves"
-      :winner="winner"
-      :current-color="currentColor"
-      :status="status"
-      @reset="reset"
+        :moves="moves"
+        :winner="winner"
+        :current-player="currentPlayer"
+        :status="status"
+        @reset="reset"
     />
   </div>
 </template>
@@ -40,19 +40,18 @@ export default {
     GameBoard,
     GameScoreBoard
   },
+  props: ["currentPlayer"],
 
   data() {
     return {
       checkers: {},
       isLocked: false,
-      currentColor: AI,
       rowCount: HEIGHT,
       colCount: WIDTH,
       status: PLAY,
       instruction: 'Click one of the columns to play!',
       winner: undefined,
       // AI stuff
-      isAITurn: true,
       position: new Position(WIDTH, HEIGHT),
       solver: new Solver(WIDTH),
     };
@@ -71,7 +70,7 @@ export default {
   },
 
   created() {
-    if (this.isAITurn) {
+    if (this.currentPlayer === AI) {
       const ret = this.solver.solve(this.position);
       const column = ret.col;
       const colCheckers = Object.values(this.checkers)
@@ -79,7 +78,6 @@ export default {
           .sort((a, b) => a.row - b.row);
       const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
       this.drop({col: column, row: lastRow})
-      this.isAITurn = false;
     }
   },
 
@@ -107,14 +105,14 @@ export default {
       // }
     },
     toggleColor() {
-      if (this.currentColor === AI) {
-        this.currentColor = YOU;
+      if (this.currentPlayer === AI) {
+        this.currentPlayer = YOU;
       } else {
-        this.currentColor = AI;
+        this.currentPlayer = AI;
       }
     },
     getChecker({row, col}) {
-      return this.checkers[key(row,col)] || {row, col, color: 'empty'};
+      return this.checkers[key(row, col)] || {row, col, color: 'empty'};
     },
     setChecker({row, col}, attrs = {}) {
       const checker = this.getChecker({row, col});
@@ -123,12 +121,10 @@ export default {
     drop({col, row}) {
       if (this.isLocked) return;
       this.isLocked = true;
-      const color = this.currentColor;
+      const color = this.currentPlayer;
       this.setChecker({row, col}, {color});
       this.position.playCol(col);
       if (!this.isDraw) this.checkForWinFrom({row, col});
-      if (!this.isAITurn)
-        this.isAITurn = true;
     },
     land() {
       if (this.isDraw) return this.displayDraw;
@@ -138,17 +134,42 @@ export default {
         this.isLocked = false;
         this.toggleColor();
       }
-      if (this.isAITurn && !this.winner) {
+      if (this.currentPlayer === AI && !this.winner) {
         const ret = this.solver.solve(this.position);
-        if (ret.col === -1 && ret.val === -10000) {
-          this.resigned(this.currentColor);
-        } else {
+        if (ret.val === 0 && ret.col === -1)
+          this.displayDraw();
+        else if (ret.col === -1)
+          this.resigned(AI);
+        else {
+          let bestColumn = ret.col;
+          // This loop is used to find if the enemy can win in the next 2 turn
+          // and prevent that.
+          // I know this is inefficient, but at least it works.
+          // And it's still sub 1 second performance, so, I don't really care *shrug*.
+          getForcedMove:
+              for (let x = 0; x < this.position.width; x++) {
+                const pos2 = this.position.clone();
+                const playedColumn = this.solver.columnExpOrder[x];
+                pos2.playCol(playedColumn);
+                for (let y = 0; y < pos2.width; y++) {
+                  const pos3 = pos2.clone();
+                  const playedColumn = this.solver.columnExpOrder[y];
+                  pos3.playCol(playedColumn);
+                  if (pos3.opponentCanWinNext()) {
+                    for (let z = 0; z < pos3.width; z++)
+                      if (pos3.isOpponentWinningMove(z)) {
+                        bestColumn = z;
+                        break getForcedMove;
+                      }
+                  }
+                }
+              }
           const colCheckers = Object.values(this.checkers)
-              .filter(c => c.col === ret.col)
+              .filter(c => c.col === bestColumn)
               .sort((a, b) => a.row - b.row);
           const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
-          this.drop({col:ret.col, row:lastRow})
-          this.isAITurn = false;
+          console.log(bestColumn, lastRow);
+          this.drop({col: bestColumn, row: lastRow})
         }
       }
     },
@@ -159,7 +180,7 @@ export default {
       if (color === EMPTY) return false;
       return checkers.every(c => c.color === color) && {color, checkers};
     },
-    checkHorizontalSegments({ focalRow, minCol, maxCol }) {
+    checkHorizontalSegments({focalRow, minCol, maxCol}) {
       let winner;
       for (let row = focalRow, col = minCol; col <= maxCol; col++) {
         winner = this.getWinner(
@@ -167,7 +188,7 @@ export default {
         if (winner) return winner;
       }
     },
-    checkVerticalSegments({ focalRow, focalCol, minRow }) {
+    checkVerticalSegments({focalRow, focalCol, minRow}) {
       let winner;
       for (let col = focalCol, row = minRow; row <= focalRow; row++) {
         winner = this.getWinner(
@@ -175,9 +196,12 @@ export default {
         if (winner) return winner;
       }
     },
-    checkForwardSlashSegments({ focalRow, focalCol, minRow, minCol, maxRow, maxCol }) {
+    checkForwardSlashSegments({focalRow, focalCol, minRow, minCol, maxRow, maxCol}) {
       const startForwardSlash = (row, col) => {
-        while (row > minRow && col > minCol) { row--; col--; }
+        while (row > minRow && col > minCol) {
+          row--;
+          col--;
+        }
         return [row, col];
       };
       let winner;
@@ -188,9 +212,12 @@ export default {
         if (winner) return winner;
       }
     },
-    checkBackwardSlashSegments({ focalRow, focalCol, minRow, minCol, maxRow, maxCol }) {
+    checkBackwardSlashSegments({focalRow, focalCol, minRow, minCol, maxRow, maxCol}) {
       const startBackwardSlash = (row, col) => {
-        while (row < maxRow && col > minCol) { row++; col--; }
+        while (row < maxRow && col > minCol) {
+          row++;
+          col--;
+        }
         return [row, col];
       };
       let winner;
@@ -203,12 +230,12 @@ export default {
     },
     checkForWinFrom(lastChecker) {
       if (!lastChecker) return;
-      const { row: focalRow, col: focalCol } = lastChecker;
+      const {row: focalRow, col: focalCol} = lastChecker;
       const minCol = min(focalCol);
       const maxCol = max(focalCol, this.colCount - 1);
       const minRow = min(focalRow);
       const maxRow = max(focalRow, this.rowCount - 1);
-      const coords = { focalRow, focalCol, minRow, minCol, maxRow, maxCol };
+      const coords = {focalRow, focalCol, minRow, minCol, maxRow, maxCol};
       this.winner = this.checkHorizontalSegments(coords) ||
           this.checkVerticalSegments(coords) ||
           this.checkForwardSlashSegments(coords) ||
@@ -217,14 +244,14 @@ export default {
     displayDraw() {
       this.status = OVER;
     },
-    displayWin(winner){
+    displayWin(winner) {
       this.winner = winner;
       this.status = OVER;
       this.winner.checkers.forEach((checker) => {
         this.setChecker(checker, {isWinner: true});
       });
     },
-    resigned(player){
+    resigned(player) {
       this.winner = {color: player === AI ? YOU : AI};
       this.status = OVER;
     }
