@@ -72,18 +72,21 @@ export default {
   created() {
     if (this.currentPlayer === AI) {
       const ret = this.solver.solve(this.position);
-      const column = ret.col;
+      // Get the column of the checkers
       const colCheckers = Object.values(this.checkers)
           .filter(c => c.col === ret.col)
           .sort((a, b) => a.row - b.row);
+      // Get last available row
       const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
-      this.drop({col: column, row: lastRow})
+      // Drop the checker
+      this.drop({col: ret.col, row: lastRow})
     }
   },
 
   methods: {
     key,
     reset() {
+      // Hard reset KEKW
       window.history.go(0);
       // this.winner = undefined;
       // this.isLocked = false;
@@ -142,33 +145,39 @@ export default {
           this.resigned(AI);
         else {
           let bestColumn = ret.col;
-          // This loop is used to find if the enemy can win in the next 2 turn
-          // and prevent that.
-          // I know this is inefficient, but at least it works.
-          // And it's still sub 1 second performance, so, I don't really care *shrug*.
-          getForcedMove:
-              for (let x = 0; x < this.position.width; x++) {
-                const pos2 = this.position.clone();
-                const playedColumn = this.solver.columnExpOrder[x];
-                pos2.playCol(playedColumn);
-                for (let y = 0; y < pos2.width; y++) {
-                  const pos3 = pos2.clone();
-                  const playedColumn = this.solver.columnExpOrder[y];
-                  pos3.playCol(playedColumn);
-                  if (pos3.opponentCanWinNext()) {
-                    for (let z = 0; z < pos3.width; z++)
-                      if (pos3.isOpponentWinningMove(z)) {
-                        bestColumn = z;
-                        break getForcedMove;
-                      }
+          // Ignore the forced move if the ai going to win
+          if (!this.position.isWinningMove(bestColumn)) {
+            // This loop is used to find if the enemy can win in the next 2 turn
+            // and prevent that.
+            // I know this is inefficient, but at least it works.
+            // And it's still sub 1 second performance, so, I don't really care *shrug*.
+            getForcedMove:
+                for (let x = 0; x < this.position.width; x++) {
+                  const pos2 = this.position.clone();
+                  const playedColumn = this.solver.columnExpOrder[x];
+                  pos2.playCol(playedColumn);
+                  for (let y = 0; y < pos2.width; y++) {
+                    const pos3 = pos2.clone();
+                    const playedColumn = this.solver.columnExpOrder[y];
+                    pos3.playCol(playedColumn);
+                    if (pos3.opponentCanWinNext()) {
+                      for (let z = 0; z < pos3.width; z++)
+                        if (pos3.isOpponentWinningMove(z)) {
+                          bestColumn = z;
+                          // We found the column, break out of the getForcedMove loop
+                          break getForcedMove;
+                        }
+                    }
                   }
                 }
-              }
+          }
+          // Get the column of the checkers
           const colCheckers = Object.values(this.checkers)
               .filter(c => c.col === bestColumn)
               .sort((a, b) => a.row - b.row);
+          // Get the last available row
           const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
-          console.log(bestColumn, lastRow);
+          // Drop the checker
           this.drop({col: bestColumn, row: lastRow})
         }
       }
