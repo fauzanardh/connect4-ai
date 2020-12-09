@@ -14,7 +14,7 @@
     <GameScoreBoard
         :moves="moves"
         :winner="winner"
-        :current-player="currentPlayer"
+        :current-player="getCurrentPlayer"
         :status="status"
         @reset="reset"
     />
@@ -40,7 +40,7 @@ export default {
     GameBoard,
     GameScoreBoard
   },
-  props: ["currentPlayer"],
+  props: ["firstPlayer"],
 
   data() {
     return {
@@ -49,6 +49,7 @@ export default {
       rowCount: HEIGHT,
       colCount: WIDTH,
       status: PLAY,
+      currentPlayer: this.firstPlayer,
       instruction: 'Click one of the columns to play!',
       winner: undefined,
       // AI stuff
@@ -66,6 +67,9 @@ export default {
     },
     isDraw() {
       return Object.keys(this.checkers).length === this.rowCount * this.colCount;
+    },
+    getCurrentPlayer() {
+      return this.currentPlayer;
     }
   },
 
@@ -147,11 +151,13 @@ export default {
           let bestColumn = ret.col;
           // Ignore the forced move if the ai going to win
           if (!this.position.isWinningMove(bestColumn)) {
-            // This loop is used to find if the enemy can win in the next 2 turn
-            // and prevent that.
+            // This loop is used to find out if the enemy can win in the next 2 turn
+            // and prevent that (only checks for the horizontal winning condition,
+            // it ignores the vertical one)
             // I know this is inefficient, but at least it works.
             // And it's still sub 1 second performance, so, I don't really care *shrug*.
             getForcedMove:
+                // Simulating the next two turns
                 for (let x = 0; x < this.position.width; x++) {
                   const pos2 = this.position.clone();
                   const playedColumn = this.solver.columnExpOrder[x];
@@ -160,13 +166,23 @@ export default {
                     const pos3 = pos2.clone();
                     const playedColumn = this.solver.columnExpOrder[y];
                     pos3.playCol(playedColumn);
+                    // Getting all the valid moves to prevent the opponent from winning the game
                     if (pos3.opponentCanWinNext()) {
-                      for (let z = 0; z < pos3.width; z++)
+                      for (let z = 0; z < pos3.width; z++) {
                         if (pos3.isOpponentWinningMove(z)) {
-                          bestColumn = z;
-                          // We found the column, break out of the getForcedMove loop
-                          break getForcedMove;
+                          const move = (this.position.mask + this.position.bottom_mask_col(z)) & this.position.column_mask(z);
+                          // Check adjacent checker (left and right) and choose that column
+                          /* eslint-disable */
+                          if ((((this.position.current_pos ^ this.position.mask) & (move >> BigInt(this.position.height + 1)))
+                          | (this.position.current_pos ^ this.position.mask) & (move << BigInt(this.position.height + 1))) !== 0n) { // Left
+                            if (BigInt(this.position.possible() & move) !== 0n) { // Checks if the move is possible
+                              bestColumn = z;
+                              break getForcedMove;
+                            }
+                          }
+                          /* eslint-enable */
                         }
+                      }
                     }
                   }
                 }

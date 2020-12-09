@@ -143,7 +143,7 @@ class Position {
         //         possibleMask = forcedMoves;
         // }
         if (forcedMoves) {
-            if (forcedMoves & (forcedMoves - 1n))
+            if ((forcedMoves & (forcedMoves - 1n)) !== 0n)
                 return 0n;
             else
                 possibleMask = forcedMoves;

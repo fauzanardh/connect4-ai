@@ -35,7 +35,7 @@ export default {
       return "GameContainer";
     },
     gameContainerProps() {
-      return {currentPlayer: this.currentPlayer};
+      return {firstPlayer: this.currentPlayer};
     }
   },
 
