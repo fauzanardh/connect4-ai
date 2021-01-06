@@ -141,8 +141,8 @@ Email: [fauzanardh@gmail.com](mailto:fauzanardh@gmail.com)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[issues-shield]: https://img.shields.io/github/issues/fauzanardh/connect4-ai.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/fauzanardh/connect4-ai.svg?style=flat-square
 [issues-url]: https://github.com/fauzanardh/connect4-ai/issues
-[license-shield]: https://img.shields.io/github/license/fauzanardh/connect4-ai.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/fauzanardh/connect4-ai.svg?style=flat-square
 [license-url]: https://github.com/fauzanardh/connect4-ai/blob/master/LICENSE.txt
 [product-screenshot]: gh_images/screenshot.png
