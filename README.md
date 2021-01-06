@@ -89,7 +89,7 @@ For macOS:
 brew install node
 ```
 
-For Windows, install the nodejs through the installer provided by the [nodejs website](https://nodejs.org/en/download/).
+For Windows and macOS (alternative), install the nodejs through the installer provided by the [nodejs website](https://nodejs.org/en/download/).
 
 ### Installation
 
@@ -144,5 +144,5 @@ Email: [fauzanardh@gmail.com](mailto:fauzanardh@gmail.com)
 [issues-shield]: https://img.shields.io/github/issues/fauzanardh/connect4-ai.svg?style=for-the-badge
 [issues-url]: https://github.com/fauzanardh/connect4-ai/issues
 [license-shield]: https://img.shields.io/github/license/fauzanardh/connect4-ai.svg?style=for-the-badge
-[license-url]: https://github.com/fauzanardh/connect4-ai/blob/master/LICENSE.txt
+[license-url]: https://github.com/fauzanardh/connect4-ai/blob/master/LICENSE
 [product-screenshot]: gh_images/screenshot.png
