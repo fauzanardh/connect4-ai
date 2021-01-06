@@ -67,7 +67,7 @@ export default {
   color: #CF6679;
 }
 .score-board {
-  width: 480px;
+  width: 240px;
   display: grid;
   grid-template-columns: [p1] 25% [status] 50% [p2] 25%;
   margin: 0 auto;
