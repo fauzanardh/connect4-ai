@@ -6,7 +6,7 @@
     <div class="status cell">
       <p v-if="gameOver">
         {{ messageOver }}
-        <a href="#app" @click="reset">Play Again</a>
+        <a class="play" href="#app" @click="reset">Play Again</a>
       </p>
       <p v-else>
         {{ currentPlayerTurnString }}
@@ -63,6 +63,9 @@ export default {
 </script>
 
 <style scoped>
+.play {
+  color: #CF6679;
+}
 .score-board {
   width: 480px;
   display: grid;

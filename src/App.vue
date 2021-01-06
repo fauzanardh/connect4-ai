@@ -9,8 +9,8 @@
     </div>
     <div v-else>
       <h3>Who gets the first turn?</h3>
-      <button type="button" v-on:click="setPlayer('ai')" style="margin:8px">AI</button>
-      <button type="button" v-on:click="setPlayer('you')" style="margin:8px">You</button>
+      <button class="btn" type="button" v-on:click="setPlayer('ai')" style="margin:8px">AI</button>
+      <button class="btn" type="button" v-on:click="setPlayer('you')" style="margin:8px">You</button>
       <br/>
       <br/>
     </div>
@@ -26,6 +26,7 @@ import {AI, YOU} from '@/constants';
 
 export default {
   name: 'App',
+
   components: {
     GameContainer
   },
@@ -51,7 +52,7 @@ export default {
         this.currentPlayer = YOU;
       if (this.currentPlayer)
         this.isReady = true;
-    }
+    },
   },
 
   data() {
@@ -74,7 +75,7 @@ export default {
 
 <style>
 body {
-  background-color: #f0ffff;
+  background-color: #121212;
 }
 a {
   text-decoration: none;
@@ -85,12 +86,24 @@ a {
 .logo h3 {
   margin: 0;
 }
+.btn {
+  background-color: #BB86FC;
+  border-radius: 6px;
+  color: #000;
+  padding: 12px 24px;
+  transition-timing-function: ease-in;
+  transition-property: background-color;
+  transition-duration: 100ms;
+}
+.btn:hover {
+  background-color: #C89EFC;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #e6e6e7;
   margin-top: 60px;
 }
 </style>

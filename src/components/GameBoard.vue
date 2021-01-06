@@ -96,7 +96,7 @@ export default {
 
 <style scoped>
 .game-board {
-  border: 5px cadetblue solid;
+  border: 5px #473E53 solid;
   margin: 0 auto;
   width: 80%;
   max-width: 420px;

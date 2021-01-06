@@ -1,11 +1,11 @@
 module.exports = {
     publicPath: "./",
     pwa: {
-        themeColor: "#42b983",
-        msTileColor: "#42b983",
+        themeColor: "#BB86FC",
+        msTileColor: "#121212",
         appleMobileWebAppCache: "yes",
         manifestOptions: {
-            background_color: "#42b983"
+            background_color: "#121212"
         }
     }
 };

@@ -4,9 +4,9 @@ export const YOU = 'you';
 export const EMPTY = 'empty';
 
 export const HEXES = {
-    ai: '#FC7E69',
-    you: '#254689',
-    columns: '#5F9EA0',
+    ai: '#BB86FC',
+    you: '#03DAC5',
+    columns: '#332940',
 };
 
 export const PLAY = 'play';
