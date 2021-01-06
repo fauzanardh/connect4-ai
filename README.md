@@ -6,12 +6,12 @@
 
 <!-- PROJECT LOGO -->
 <br />
-<p style="text-align:center">
+<p align="center">
     <a href="https://github.com/fauzanardh/connect4-ai">
         <img src="gh_images/logo.png" alt="Logo" width="80" height="80">
     </a>
-    <h3 style="text-align:center">Connect4 AI</h3>
-    <p style="text-align:center">
+    <h3 align="center">Connect4 AI</h3>
+    <p align="center">
         BINUS International Analysis of Algorithm class Project
         <br />
         <br />
