@@ -12,7 +12,7 @@
     </a>
     <h3 align="center">Connect4 AI</h3>
     <p align="center">
-        BINUS International Analysis of Algorithm class Project
+        BINUS International Analysis of Algorithm Class' Project
         <br />
         <br />
         <a href="https://fauzanardh.github.io/connect4-ai/">View Demo</a>
