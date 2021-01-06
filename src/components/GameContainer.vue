@@ -161,26 +161,32 @@ export default {
                 for (let x = 0; x < this.position.width; x++) {
                   const pos2 = this.position.clone();
                   const playedColumn = this.solver.columnExpOrder[x];
-                  pos2.playCol(playedColumn);
-                  for (let y = 0; y < pos2.width; y++) {
-                    const pos3 = pos2.clone();
-                    const playedColumn = this.solver.columnExpOrder[y];
-                    pos3.playCol(playedColumn);
-                    // Getting all the valid moves to prevent the opponent from winning the game
-                    if (pos3.opponentCanWinNext()) {
-                      for (let z = 0; z < pos3.width; z++) {
-                        if (pos3.isOpponentWinningMove(z)) {
-                          const move = (this.position.mask + this.position.bottom_mask_col(z)) & this.position.column_mask(z);
-                          // Check adjacent checker (left and right) and choose that column
-                          /* eslint-disable */
-                          if ((((this.position.current_pos ^ this.position.mask) & (move >> BigInt(this.position.height + 1)))
-                          | (this.position.current_pos ^ this.position.mask) & (move << BigInt(this.position.height + 1))) !== 0n) { // Left
-                            if (BigInt(this.position.possible() & move) !== 0n) { // Checks if the move is possible
-                              bestColumn = z;
-                              break getForcedMove;
+                  // check if we can play in this column
+                  if (pos2.isPlayable(playedColumn)) {
+                    pos2.playCol(playedColumn);
+                    for (let y = 0; y < pos2.width; y++) {
+                      const pos3 = pos2.clone();
+                      const playedColumn = this.solver.columnExpOrder[y];
+                      // check if we can play in this column
+                      if (pos3.isPlayable(playedColumn)) {
+                        pos3.playCol(playedColumn);
+                        // Getting all the valid moves to prevent the opponent from winning the game
+                        if (pos3.opponentCanWinNext()) {
+                          for (let z = 0; z < pos3.width; z++) {
+                            if (pos3.isOpponentWinningMove(z)) {
+                              const move = (this.position.mask + this.position.bottom_mask_col(z)) & this.position.column_mask(z);
+                              // Check adjacent checker (left and right) and choose that column
+                              /* eslint-disable */
+                              if ((((this.position.current_pos ^ this.position.mask) & (move >> BigInt(this.position.height + 1)))
+                                  | (this.position.current_pos ^ this.position.mask) & (move << BigInt(this.position.height + 1))) !== 0n) { // Left
+                                if (BigInt(this.position.possible() & move) !== 0n) { // Checks if the move is possible
+                                  bestColumn = z;
+                                  break getForcedMove;
+                                }
+                              }
+                              /* eslint-enable */
                             }
                           }
-                          /* eslint-enable */
                         }
                       }
                     }
