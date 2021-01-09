@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.1ed5b5b2c357be9141fdb00ea81f8a3d.js"
+  "precache-manifest.acf7540439dbb57624a0885e245ea470.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "connect4-ai"});
