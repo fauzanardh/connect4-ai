@@ -6,7 +6,7 @@
     <div class="status cell">
       <p v-if="gameOver">
         {{ messageOver }}
-        <a class="play" href="#app" @click="reset">Play Again</a>
+        <br/><a class="play" href="#app" @click="reset">Play Again</a>
       </p>
       <p v-else>
         {{ currentPlayerTurnString }}

@@ -142,7 +142,7 @@ export default {
         this.toggleColor();
       }
       if (this.currentPlayer === AI && !this.winner) {
-        const scores = this.solver.analyze(this.position, true);
+        const scores = this.solver.analyze(this.position);
         let bestMove = 3;
         let bestScore = this.position.minScore - 2;
         for (let col = 0; col < this.position.width; col++) {

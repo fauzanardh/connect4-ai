@@ -109,6 +109,7 @@ For Windows and macOS (alternative), install the nodejs through the installer pr
 4. (optional) Build the app for production use
     ```shell
     npm run build
+    npm run workbox-build-inject
     ```
    The app will be available inside the `dist/` folder and ready to be deployed.
 
