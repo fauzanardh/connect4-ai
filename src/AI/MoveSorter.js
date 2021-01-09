@@ -6,13 +6,13 @@ class MoveSorter {
     }
 
     // Add a move to the container with its score
-    add(move, score, col) {
+    add(move, score) {
         let pos = this.size++;
-        for (; pos && this.entries[pos-1].score > score; --pos)
-            this.entries[pos] = this.entries[pos-1];
+        for (; pos && this.entries[pos-1].score > score; --pos) {
+            this.entries[pos] = this.entries[pos - 1];
+        }
         this.entries[pos].move = move;
         this.entries[pos].score = score;
-        this.entries[pos].col = col;
     }
 
     // Get the next move

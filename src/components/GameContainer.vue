@@ -142,66 +142,24 @@ export default {
         this.toggleColor();
       }
       if (this.currentPlayer === AI && !this.winner) {
-        const ret = this.solver.solve(this.position);
-        if (ret.val === 0 && ret.col === -1)
-          this.displayDraw();
-        else if (ret.col === -1)
-          this.resigned(AI);
-        else {
-          let bestColumn = ret.col;
-          // Ignore the forced move if the ai going to win
-          if (!this.position.isWinningMove(bestColumn)) {
-            // This loop is used to find out if the enemy can win in the next 2 turn
-            // and prevent that (only checks for the horizontal winning condition,
-            // it ignores the vertical one)
-            // I know this is inefficient, but at least it works.
-            // And it's still sub 1 second performance, so, I don't really care *shrug*.
-            getForcedMove:
-                // Simulating the next two turns
-                for (let x = 0; x < this.position.width; x++) {
-                  const pos2 = this.position.clone();
-                  const playedColumn = this.solver.columnExpOrder[x];
-                  // check if we can play in this column
-                  if (pos2.isPlayable(playedColumn)) {
-                    pos2.playCol(playedColumn);
-                    for (let y = 0; y < pos2.width; y++) {
-                      const pos3 = pos2.clone();
-                      const playedColumn = this.solver.columnExpOrder[y];
-                      // check if we can play in this column
-                      if (pos3.isPlayable(playedColumn)) {
-                        pos3.playCol(playedColumn);
-                        // Getting all the valid moves to prevent the opponent from winning the game
-                        if (pos3.opponentCanWinNext()) {
-                          for (let z = 0; z < pos3.width; z++) {
-                            if (pos3.isOpponentWinningMove(z)) {
-                              const move = (this.position.mask + this.position.bottom_mask_col(z)) & this.position.column_mask(z);
-                              // Check adjacent checker (left and right) and choose that column
-                              /* eslint-disable */
-                              if ((((this.position.current_pos ^ this.position.mask) & (move >> BigInt(this.position.height + 1)))
-                                  | (this.position.current_pos ^ this.position.mask) & (move << BigInt(this.position.height + 1))) !== 0n) { // Left
-                                if (BigInt(this.position.possible() & move) !== 0n) { // Checks if the move is possible
-                                  bestColumn = z;
-                                  break getForcedMove;
-                                }
-                              }
-                              /* eslint-enable */
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
+        const scores = this.solver.analyze(this.position, true);
+        let bestMove = 3;
+        let bestScore = this.position.minScore - 2;
+        for (let col = 0; col < this.position.width; col++) {
+          const orderedCol = this.solver.columnExpOrderRev[col];
+          if (scores[orderedCol] >= bestScore) {
+            bestScore = scores[orderedCol];
+            bestMove = orderedCol;
           }
-          // Get the column of the checkers
-          const colCheckers = Object.values(this.checkers)
-              .filter(c => c.col === bestColumn)
-              .sort((a, b) => a.row - b.row);
-          // Get the last available row
-          const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
-          // Drop the checker
-          this.drop({col: bestColumn, row: lastRow})
         }
+        // Get the column of the checkers
+        const colCheckers = Object.values(this.checkers)
+            .filter(c => c.col === bestMove)
+            .sort((a, b) => a.row - b.row);
+        // Get the last available row
+        const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
+        // Drop the checker
+        this.drop({col: bestMove, row: lastRow})
       }
     },
     getWinner(...segment) {
