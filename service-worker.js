@@ -6,5 +6,5 @@ if (workbox) {
     workbox.core.skipWaiting();
     workbox.core.clientsClaim();
     workbox.precaching.cleanupOutdatedCaches();
-    workbox.precaching.precacheAndRoute([{"revision":"5e02cc55e799aeca0626736255b62545","url":"favicon.ico"},{"revision":"03607bfcfc21323932f78e420a08e77a","url":"index.html"},{"revision":"9b7a3703a16cdaed36266c0418f551e2","url":"precache-manifest.9b7a3703a16cdaed36266c0418f551e2.js"}]);
+    workbox.precaching.precacheAndRoute([{"revision":"5e02cc55e799aeca0626736255b62545","url":"favicon.ico"},{"revision":"dab2dde42d2d121e998eec5a63cd8793","url":"index.html"},{"revision":"09b34566a7a38e4025d7edc488ad9c17","url":"precache-manifest.09b34566a7a38e4025d7edc488ad9c17.js"}]);
 }
