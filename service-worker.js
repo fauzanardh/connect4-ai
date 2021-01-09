@@ -1,34 +1,9 @@
-/**
- * Welcome to your Workbox-powered service worker!
- *
- * You'll need to register this file in your web app and you should
- * disable HTTP caching for this file too.
- * See https://goo.gl/nhQhGp
- *
- * The rest of the code is auto-generated. Please don't update this file
- * directly; instead, make changes to your Workbox build configuration
- * and re-run your build process.
- * See https://goo.gl/2aRDsh
- */
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.0.2/workbox-sw.js')
 
-importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
+if (workbox) {
+    workbox.core.skipWaiting();
+    workbox.core.clientsClaim();
+    workbox.precaching.cleanupOutdatedCaches();
 
-importScripts(
-  "precache-manifest.acf7540439dbb57624a0885e245ea470.js"
-);
-
-workbox.core.setCacheNameDetails({prefix: "connect4-ai"});
-
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
-
-/**
- * The workboxSW.precacheAndRoute() method efficiently caches and responds to
- * requests for URLs in the manifest.
- * See https://goo.gl/S9QRab
- */
-self.__precacheManifest = [].concat(self.__precacheManifest || []);
-workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
+    workbox.precaching.precacheAndRoute([{"revision":"5e02cc55e799aeca0626736255b62545","url":"favicon.ico"},{"revision":"04cef3764d4c2d6a7e14152be3fcabaf","url":"index.html"},{"revision":"acf7540439dbb57624a0885e245ea470","url":"precache-manifest.acf7540439dbb57624a0885e245ea470.js"}]);
+}
