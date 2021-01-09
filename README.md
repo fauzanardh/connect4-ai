@@ -55,6 +55,7 @@
 
 [![Connect4AI_ScreenShot][product-screenshot]](https://fauzanardh.github.io/connect4-ai/)
 
+This project is a part of BINUS International Analysis of Algorithm class final project. Why we choose to make an AI for the game Connect Four as our final project is because this project is interesting and challenging in the same time.
 
 ### Built With
 
@@ -141,8 +142,8 @@ Email: [fauzanardh@gmail.com](mailto:fauzanardh@gmail.com)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[issues-shield]: https://img.shields.io/github/issues/fauzanardh/connect4-ai.svg?style=flat-square
+[issues-shield]: https://img.shields.io/github/issues/fauzanardh/connect4-ai.svg?style=for-the-badge
 [issues-url]: https://github.com/fauzanardh/connect4-ai/issues
-[license-shield]: https://img.shields.io/github/license/fauzanardh/connect4-ai.svg?style=flat-square
+[license-shield]: https://img.shields.io/github/license/fauzanardh/connect4-ai.svg?style=for-the-badge
 [license-url]: https://github.com/fauzanardh/connect4-ai/blob/master/LICENSE.txt
 [product-screenshot]: gh_images/screenshot.png
