@@ -75,15 +75,24 @@ export default {
 
   created() {
     if (this.currentPlayer === AI) {
-      const ret = this.solver.solve(this.position);
+      const scores = this.solver.analyze(this.position, true);
+      let bestMove = 3;
+      let bestScore = this.position.minScore - 2;
+      for (let col = 0; col < this.position.width; col++) {
+        const orderedCol = this.solver.columnExpOrderRev[col];
+        if (scores[orderedCol] >= bestScore) {
+          bestScore = scores[orderedCol];
+          bestMove = orderedCol;
+        }
+      }
       // Get the column of the checkers
       const colCheckers = Object.values(this.checkers)
-          .filter(c => c.col === ret.col)
+          .filter(c => c.col === bestMove)
           .sort((a, b) => a.row - b.row);
-      // Get last available row
+      // Get the last available row
       const lastRow = Math.max(...colCheckers.map(c => c.row).concat(-1)) + 1;
       // Drop the checker
-      this.drop({col: ret.col, row: lastRow})
+      this.drop({col: bestMove, row: lastRow})
     }
   },
 
