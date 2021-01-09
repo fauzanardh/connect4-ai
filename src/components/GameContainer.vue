@@ -75,7 +75,7 @@ export default {
 
   created() {
     if (this.currentPlayer === AI) {
-      const scores = this.solver.analyze(this.position, true);
+      const scores = this.solver.analyze(this.position);
       let bestMove = 3;
       let bestScore = this.position.minScore - 2;
       for (let col = 0; col < this.position.width; col++) {
@@ -151,9 +151,11 @@ export default {
         this.toggleColor();
       }
       if (this.currentPlayer === AI && !this.winner) {
-        const scores = this.solver.analyze(this.position, true);
+        let scores = this.solver.analyze(this.position);
+
         let bestMove = 3;
         let bestScore = this.position.minScore - 2;
+
         for (let col = 0; col < this.position.width; col++) {
           const orderedCol = this.solver.columnExpOrderRev[col];
           if (scores[orderedCol] >= bestScore) {
@@ -161,6 +163,7 @@ export default {
             bestMove = orderedCol;
           }
         }
+
         // Get the column of the checkers
         const colCheckers = Object.values(this.checkers)
             .filter(c => c.col === bestMove)
