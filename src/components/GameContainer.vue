@@ -55,6 +55,7 @@ export default {
       // AI stuff
       position: new Position(WIDTH, HEIGHT),
       solver: new Solver(WIDTH),
+      counter: 0,
     };
   },
 
@@ -151,7 +152,12 @@ export default {
         this.toggleColor();
       }
       if (this.currentPlayer === AI && !this.winner) {
-        let scores = this.solver.analyze(this.position);
+        let scores;
+        if (this.counter <= 6)
+          scores = this.solver.analyze(this.position, true);
+        else
+          scores = this.solver.analyze(this.position);
+        this.counter++;
 
         let bestMove = 3;
         let bestScore = this.position.minScore - 2;
